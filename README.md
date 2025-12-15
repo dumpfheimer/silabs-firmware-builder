@@ -1,4 +1,8 @@
-# Silicon Labs firmware builder repository
+# SLZB MR-3 MG24 Adaptation of Silicon Labs firmware builder repository
+This is a clone of https://github.com/NabuCasa/silabs-firmware-builder
+with an extra manifest for the SLZB MR3 MG24 chip
+
+
 This repository contains tools for building firmwares for the Home Assistant Connect
 ZBT-1/SkyConnect and the Home Assistant Yellow's IEEE 802.15.4 radio. The firmware
 manifests are entirely generic, however, and are intended to be written easily for any
