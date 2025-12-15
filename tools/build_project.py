@@ -384,25 +384,6 @@ def main():
                 # Otherwise, append it
                 output_config.append({"name": name, "value": value})
 
-    # Builder config: GCC linker `wrap`ed functions
-    try:
-        wrapped_stack_functions = next(
-            c
-            for c in base_project["configuration"]
-            if c["name"] == "BUILDER_WRAPPED_STACK_FUNCTIONS"
-        )
-    except StopIteration:
-        wrapped_stack_functions = {
-            "name": "BUILDER_WRAPPED_STACK_FUNCTIONS",
-            "value": "",
-        }
-        base_project["configuration"].append(wrapped_stack_functions)
-
-    if "wrapped_stack_functions" in manifest:
-        wrapped_stack_functions["value"] = ",".join(
-            manifest.get("wrapped_stack_functions", [])
-        )
-
     # Finally, write out the modified base project
     with base_project_slcp.open("w") as f:
         yaml.dump(base_project, f)
@@ -419,6 +400,7 @@ def main():
         SLC
         + [
             "generate",
+            "--trust-totality",
             "--with", manifest["device"],
             "--project-file", base_project_slcp.resolve(),
             "--export-destination", args.build_dir.resolve(),
@@ -431,8 +413,6 @@ def main():
         "slc generate",
         env={
             **os.environ,
-            # XXX: this is a fun hack to disable `slc trust`
-            "JAVA_TOOL_OPTIONS": "-Dstudio.unittest=true",
         }
     )
     # fmt: on
@@ -563,7 +543,8 @@ def main():
     # Fix Gecko SDK bugs
     sl_rail_util_pti_config_h = args.build_dir / "config/sl_rail_util_pti_config.h"
 
-    # PTI seemingly cannot be excluded, even if it is disabled
+    # PTI seemingly cannot be excluded, even if it is disabled.
+    # This causes builds to fail when `-Werror` is enabled.
     if sl_rail_util_pti_config_h.exists():
         sl_rail_util_pti_config_h.write_text(
             sl_rail_util_pti_config_h.read_text().replace(
@@ -572,18 +553,11 @@ def main():
             )
         )
 
-    # Same with EUSART config
-    sl_uartdrv_eusart_ws2812_uart_config = (
-        args.build_dir / "config/sl_uartdrv_eusart_ws2812_uart_config.h"
-    )
-
-    if sl_uartdrv_eusart_ws2812_uart_config.exists():
-        sl_uartdrv_eusart_ws2812_uart_config.write_text(
-            sl_uartdrv_eusart_ws2812_uart_config.read_text().replace(
-                '#warning "UARTDRV EUSART peripheral not configured"\n',
-                '// #warning "UARTDRV EUSART peripheral not configured"\n',
-            )
-        )
+    # Fix LTO parallel compilation issue with paths containing spaces.
+    # `-flto=auto` spawns make sub-processes that fail with spaces in toolchain paths.
+    project_mak = args.build_dir / f"{base_project_name}.project.mak"
+    if project_mak.exists():
+        project_mak.write_text(project_mak.read_text().replace("-flto=auto", "-flto=1"))
 
     # Remove absolute paths from the build for reproducibility
     build_flags["C_FLAGS"] += [
@@ -598,10 +572,6 @@ def main():
     # Enable errors
     build_flags["C_FLAGS"] += ["-Wall", "-Wextra", "-Werror"]
     build_flags["CXX_FLAGS"] = build_flags["C_FLAGS"]
-
-    # Link-time stack function replacement
-    if wrapped_stack_functions["value"]:
-        build_flags["LD_FLAGS"] += [f"-Wl,--wrap={wrapped_stack_functions['value']}"]
 
     output_artifact = (args.build_dir / "build/debug" / base_project_name).with_suffix(
         ".gbl"

@@ -10,11 +10,30 @@ gbl:
   ezsp_version: dynamic
   baudrate: 115200
 
+sdk_extension:
+  - id: xncp
+    version: 1.0.0
+  - id: xncp_common
+    version: 1.0.0
+  - id: board_activity
+    version: 1.0.0
+
 add_components:
 - id: simple_led
   instance: [board_activity]
+- id: board_activity_led
+  from: board_activity
+- id: xncp_core
+  from: xncp
+- id: xncp_common_commands
+  from: xncp_common
 
 c_defines:
+  XNCP_MFG_MANUF_NAME: '"Nabu Casa"'
+  XNCP_MFG_BOARD_NAME: '"Home Assistant Yellow"'
+  XNCP_BUILD_STRING: template:"{now:%Y%m%d%H%M%S}"
+  XNCP_MANUAL_SOURCE_ROUTE_TABLE_SIZE: 200
+
   EMBER_APS_UNICAST_MESSAGE_COUNT: 32
   EMBER_BINDING_TABLE_SIZE: 32
   EMBER_BROADCAST_TABLE_SIZE: 64
@@ -39,16 +58,17 @@ c_defines:
 
   SL_IOSTREAM_USART_VCOM_TX_PORT: gpioPortA
   SL_IOSTREAM_USART_VCOM_TX_PIN:  5
-
   SL_IOSTREAM_USART_VCOM_RX_PORT: gpioPortA
   SL_IOSTREAM_USART_VCOM_RX_PIN:  6
-
   SL_IOSTREAM_USART_VCOM_CTS_PORT: gpioPortD
   SL_IOSTREAM_USART_VCOM_CTS_PIN:  2
-
   SL_IOSTREAM_USART_VCOM_RTS_PORT: gpioPortC
   SL_IOSTREAM_USART_VCOM_RTS_PIN:  1
+
+  SL_IOSTREAM_USART_VCOM_RX_BUFFER_SIZE: 128
 
   SL_SIMPLE_LED_BOARD_ACTIVITY_POLARITY: SL_SIMPLE_LED_POLARITY_ACTIVE_LOW
   SL_SIMPLE_LED_BOARD_ACTIVITY_PORT:     gpioPortB
   SL_SIMPLE_LED_BOARD_ACTIVITY_PIN:      1
+
+  BOARD_ACTIVITY_LED_INSTANCE: sl_led_board_activity
