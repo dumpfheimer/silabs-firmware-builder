@@ -9,19 +9,24 @@ gbl:
   fw_type: zigbee_ncp
   ezsp_version: dynamic
   baudrate: 460800
-  fw_variant: sw_flow
+#  fw_variant: sw_flow
 
 sdk_extension:
   - id: xncp
+    vendor: nabucasa
     version: 1.0.0
   - id: xncp_common
+    vendor: nabucasa
     version: 1.0.0
 
 add_components:
 - id: xncp_core
-  from: xncp
+  vendor: nabucasa
+  package: xncp
 - id: xncp_common_commands
-  from: xncp_common
+  vendor: nabucasa
+  package: xncp_common
+
 
 #slcp_defines:
 #  SL_ZIGBEE_MULTICAST_TABLE_SIZE: 26
@@ -38,8 +43,12 @@ c_defines:
   #XNCP_BUILD_STRING: template:"{now:%Y%m%d%H%M%S}"
   XNCP_MFG_MANUF_NAME: '"Chris"'
   XNCP_MFG_BOARD_NAME: '"SLZB-MR3 Mg24"'
-  XNCP_BUILD_STRING: template:"{now:%Y%m%d%H%M%S}"
-  XNCP_MANUAL_SOURCE_ROUTE_TABLE_SIZE: 1
+  #XNCP_BUILD_STRING: template:"{now:%Y%m%d%H%M%S}"
+  #XNCP_MANUAL_SOURCE_ROUTE_TABLE_SIZE: 200
+  #XNCP_MFG_MANUF_NAME: '"Nabu Casa"'
+  #XNCP_MFG_BOARD_NAME: '"Home Assistant Connect ZBT-2"'
+  XNCP_BUILD_STRING: template:"{now:%Y%m%d%H%M}"
+  XNCP_MANUAL_SOURCE_ROUTE_TABLE_SIZE: 200
 
   EMBER_APS_UNICAST_MESSAGE_COUNT: 32
   EMBER_BINDING_TABLE_SIZE: 32
@@ -47,7 +56,7 @@ c_defines:
   EMBER_KEY_TABLE_SIZE: 12
   EMBER_MAX_END_DEVICE_CHILDREN: 32
   EMBER_PACKET_BUFFER_COUNT: 255
-  EMBER_SOURCE_ROUTE_TABLE_SIZE: 0
+  EMBER_SOURCE_ROUTE_TABLE_SIZE: 200
   #EMBER_MAX_HOPS: 10
   #EMBER_MAX_DEPTH: 5
   EMBER_NEIGHBOR_TABLE_SIZE: 16
@@ -79,3 +88,4 @@ c_defines:
   SL_IOSTREAM_USART_VCOM_RTS_PORT: 0
   SL_IOSTREAM_USART_VCOM_RTS_PIN:  0
 
+  SL_APPLICATION_PRODUCT_ID: '{0xF4, 0x5E, 0x03, 0x17, 0xD5, 0x84, 0xAD, 0xA4, 0x7D, 0xDA, 0x6C, 0x95, 0x11, 0x2F, 0x24, 0xFA}'

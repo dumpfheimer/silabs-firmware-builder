@@ -196,6 +196,8 @@ ENV SILABS_FIRMWARE_BUILD_CONTAINER=1
 ENV HOME=/root
 ENV PATH="$PATH:/root/.silabs/slt/bin"
 
+RUN git config --global --add safe.directory /repo
+
 WORKDIR /repo
 
 ENTRYPOINT ["/opt/venv/bin/python3", "tools/build_project.py"]
